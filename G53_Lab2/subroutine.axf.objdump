@@ -1,0 +1,86 @@
+
+D:/uni/5th semester/ecse324/labs/lab2/G53_Lab2/subroutine.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+			.text
+			.global _start
+
+_start: 	
+			LDR R4, =NUMBERS		/* Register R4 is a pointer to array */
+   0:	e59f4078 	ldr	r4, [pc, #120]	; 80 <NUMBERS+0x1c>
+			LDR R5, N				/* Register R5 holds the number of values in array */
+   4:	e59f5054 	ldr	r5, [pc, #84]	; 60 <N>
+			LDR R0, [R4]			/* R0 holds max value and R1 holds value to compare */
+   8:	e5940000 	ldr	r0, [r4]
+			LDR R1, [R4], #4	
+   c:	e4941004 	ldr	r1, [r4], #4
+			SUBS R5, R5, #1			/* Decrement counter */
+  10:	e2555001 	subs	r5, r5, #1
+			BLGE FILL_STACK			/* If there are more than 2 parameters, push the rest to stack */
+  14:	ab000001 	blge	20 <FILL_STACK>
+			LDR R5, N				/* Restore number of elements to compare elements */
+  18:	e59f5040 	ldr	r5, [pc, #64]	; 60 <N>
+			B 	COMPARE				
+  1c:	ea000004 	b	34 <COMPARE>
+
+00000020 <FILL_STACK>:
+
+FILL_STACK: 	
+			LDR R2, [R4], #4		/* Load next element in array */
+  20:	e4942004 	ldr	r2, [r4], #4
+			PUSH {R2}				/* Push it to stack */
+  24:	e52d2004 	push	{r2}		; (str r2, [sp, #-4]!)
+			SUBS R5, R5, #1			/* Decrement counter */
+  28:	e2555001 	subs	r5, r5, #1
+			BXEQ LR					/* If counter is 0, leave subroutine */
+  2c:	012fff1e 	bxeq	lr
+			B FILL_STACK			/* If counter is greater than 0, loop */
+  30:	eafffffa 	b	20 <FILL_STACK>
+
+00000034 <COMPARE>:
+
+COMPARE:
+			SUBS R5, R5, #1			/* Decrement counter */
+  34:	e2555001 	subs	r5, r5, #1
+			BEQ END					/* If 0, end */	
+  38:	0a000007 	beq	5c <END>
+			POP {R1}				/* Pop stack into R1 */
+  3c:	e49d1004 	pop	{r1}		; (ldr r1, [sp], #4)
+			BL 	MAX 				/* Call subroutine */
+  40:	eb000000 	bl	48 <MAX>
+			B 	COMPARE				/* Loop for every element in stack */
+  44:	eafffffa 	b	34 <COMPARE>
+
+00000048 <MAX>:
+MAX: 		
+			PUSH {R4-R12}			/* Save state */
+  48:	e92d1ff0 	push	{r4, r5, r6, r7, r8, r9, r10, r11, r12}
+			CMP R0, R1 				/* Compare R0 and R1 values (R0 - R1)  */
+  4c:	e1500001 	cmp	r0, r1
+			MOVLT R0, R1			/* If (R0 - R1) > 0, no new max has been found, so loop again */
+  50:	b1a00001 	movlt	r0, r1
+			POP {R4-R12}			/* Restore state */
+  54:	e8bd1ff0 	pop	{r4, r5, r6, r7, r8, r9, r10, r11, r12}
+			BX LR					/* Leave subroutine */
+  58:	e12fff1e 	bx	lr
+
+0000005c <END>:
+
+END: 		B END					/* Infinite loop */
+  5c:	eafffffe 	b	5c <END>
+
+00000060 <N>:
+  60:	00000007 	.word	0x00000007
+
+00000064 <NUMBERS>:
+  64:	00000004 	.word	0x00000004
+  68:	00000005 	.word	0x00000005
+  6c:	00000003 	.word	0x00000003
+  70:	00000006 	.word	0x00000006
+  74:	00000001 	.word	0x00000001
+  78:	00000008 	.word	0x00000008
+  7c:	00000002 	.word	0x00000002
+  80:	00000064 	.word	0x00000064

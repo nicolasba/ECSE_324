@@ -1,0 +1,59 @@
+
+D:/uni/5th semester/ecse324/labs/lab2/G53_Lab2/stack.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+			.text
+			.global _start
+
+_start: 	
+			LDR R0, =ARRAY 			/* R0 holds pointer to first element in array */
+   0:	e59f0048 	ldr	r0, [pc, #72]	; 50 <N+0x4>
+			LDR R1, N				/* Memory assigned to hold number of entries in the list */
+   4:	e59f1040 	ldr	r1, [pc, #64]	; 4c <N>
+			LDR R3, =0xFFFF5BB0		/* R4 holds pointer to stack located at specified address */
+   8:	e59f3044 	ldr	r3, [pc, #68]	; 54 <N+0x8>
+
+0000000c <PUSH_B>:
+
+PUSH_B:
+			LDR R2, [R0], #4		/* Load one value from array in R2 at the time and shift array pointer to next element*/
+   c:	e4902004 	ldr	r2, [r0], #4
+			STR R2, [R3, #-4]!		/* Push value in R2 to stack */
+  10:	e5232004 	str	r2, [r3, #-4]!
+			SUBS R1, R1, #1			/* Decrement the loop counter */
+  14:	e2511001 	subs	r1, r1, #1
+			BEQ POP_B				/* Go back to outer loop if counter has reached */	
+  18:	0a000000 	beq	20 <POP_B>
+			B PUSH_B
+  1c:	eafffffa 	b	c <PUSH_B>
+
+00000020 <POP_B>:
+
+POP_B:		
+			LDMIA R3!, {R4-R6}		/* Pop the 3 values at the top of the stack to R4-R6 */
+  20:	e8b30070 	ldm	r3!, {r4, r5, r6}
+			B END					/* Go back to outer loop if counter has reached */	
+  24:	eaffffff 	b	28 <END>
+
+00000028 <END>:
+
+END:		B END
+  28:	eafffffe 	b	28 <END>
+
+0000002c <ARRAY>:
+  2c:	00000001 	.word	0x00000001
+  30:	00000002 	.word	0x00000002
+  34:	00000003 	.word	0x00000003
+  38:	00000004 	.word	0x00000004
+  3c:	00000006 	.word	0x00000006
+  40:	00000007 	.word	0x00000007
+  44:	00000008 	.word	0x00000008
+  48:	00000009 	.word	0x00000009
+
+0000004c <N>:
+  4c:	00000008 	.word	0x00000008
+  50:	0000002c 	.word	0x0000002c
+  54:	ffff5bb0 	.word	0xffff5bb0

@@ -1,0 +1,65 @@
+
+D:/uni/5th semester/ecse324/labs/lab2/G53_Lab2/fib.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+			.text
+			.global _start
+
+_start: 	
+			LDR R4, N				/* R4 holds N at a given time in the subroutine */	
+   0:	e59f4050 	ldr	r4, [pc, #80]	; 58 <N>
+			SUBS R4, R4, #1			/* Magic trick */
+   4:	e2544001 	subs	r4, r4, #1
+			MOV R0, #0				/* R0 will store the result of fib (N), starts at 0 */
+   8:	e3a00000 	mov	r0, #0
+			BL 	FIB					/* Call subroutine */	
+   c:	eb000000 	bl	14 <FIB>
+			B 	END
+  10:	ea00000f 	b	54 <END>
+
+00000014 <FIB>:
+
+FIB: 			
+			CMP R4, #2				/* If R4 is less than 2, subroutine should add +1 to R0 (result) and return */
+  14:	e3540002 	cmp	r4, #2
+			ADDLT R0, R0, #1		/* Add 1 to result (if N < 2)*/
+  18:	b2800001 	addlt	r0, r0, #1
+			BXLT LR					/* Leave recursive subroutine (if N < 2)*/
+  1c:	b12fff1e 	bxlt	lr
+			SUBS R4, R4, #1			/* Decrease N by 1*/
+  20:	e2544001 	subs	r4, r4, #1
+			PUSH {R4}				/* Save current value of N before calling subroutine */
+  24:	e52d4004 	push	{r4}		; (str r4, [sp, #-4]!)
+			PUSH {LR}				/* Save current value of LR before calling subroutine */
+  28:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+			BL	FIB					/* Recursive call to subroutine */
+  2c:	ebfffff8 	bl	14 <FIB>
+			POP	{LR}				/* Restore current value of N before calling subroutine */
+  30:	e49de004 	pop	{lr}		; (ldr lr, [sp], #4)
+			POP {R4}				/* Restore current value of LR before calling subroutine */
+  34:	e49d4004 	pop	{r4}		; (ldr r4, [sp], #4)
+			SUBS R4, R4, #1			/* Since N was already decreased by 1, this will be N - 2 */
+  38:	e2544001 	subs	r4, r4, #1
+			PUSH {R4}				/* Save current value of N before calling subroutine */	
+  3c:	e52d4004 	push	{r4}		; (str r4, [sp, #-4]!)
+			PUSH {LR}				/* Save current value of LR before calling subroutine */
+  40:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+			BL 	FIB					/* Recursive call to subroutine */
+  44:	ebfffff2 	bl	14 <FIB>
+			POP {LR}				/* Restore current value of N before calling subroutine */
+  48:	e49de004 	pop	{lr}		; (ldr lr, [sp], #4)
+			POP {R4}				/* Restore current value of LR before calling subroutine */
+  4c:	e49d4004 	pop	{r4}		; (ldr r4, [sp], #4)
+			BX LR					/* Leave subroutine */
+  50:	e12fff1e 	bx	lr
+
+00000054 <END>:
+
+END: 		B END					/* Infinite loop */
+  54:	eafffffe 	b	54 <END>
+
+00000058 <N>:
+  58:	0000000d 	.word	0x0000000d

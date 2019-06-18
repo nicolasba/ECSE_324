@@ -1,0 +1,117 @@
+
+D:/uni/5th semester/ecse324/labs/lab1/G53_Lab1/stddev.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+			.text
+			.global _start
+
+_start: 	
+			LDR R4, =MAX 			/* Register R4 is a pointer to max location */
+   0:	e59f40a8 	ldr	r4, [pc, #168]	; b0 <NUMBERS+0x1c>
+			LDR R5, =MIN	 		/* Register R5 is a pointer to min location */
+   4:	e59f50a8 	ldr	r5, [pc, #168]	; b4 <NUMBERS+0x20>
+			LDR R6, =STD_DEV		/* Register R6 is a pointer to std_dev location */
+   8:	e59f60a8 	ldr	r6, [pc, #168]	; b8 <NUMBERS+0x24>
+			LDR R2, [R6, #4]		/* Register R2 holds value N. */
+   c:	e5962004 	ldr	r2, [r6, #4]
+			ADD R3, R6, #8			/* Register R3 points to the first element in the list. */
+  10:	e2863008 	add	r3, r6, #8
+			LDR R0, [R3] 			/* Register R0 holds the first number. (This register acts like a max variable) */
+  14:	e5930000 	ldr	r0, [r3]
+
+00000018 <MAX_LOOP>:
+
+MAX_LOOP: 	SUBS R2, R2, #1			/* Decrement the loop counter */
+  18:	e2522001 	subs	r2, r2, #1
+			BEQ RESET_POINTERS		/* End loop if counter has reached 0. */
+  1c:	0a000005 	beq	38 <RESET_POINTERS>
+			ADD R3, R3, #4 			/* Register R3 points to the next number in the list */
+  20:	e2833004 	add	r3, r3, #4
+			LDR R1, [R3] 			/* Register R1 holds the next number in the list */
+  24:	e5931000 	ldr	r1, [r3]
+			CMP R0, R1 				/* Compare R0 and R1 values (R0 - R1)  */
+  28:	e1500001 	cmp	r0, r1
+			BGE MAX_LOOP			/* If (R0 - R1) > 0, no new max has been found, so loop again */
+  2c:	aafffff9 	bge	18 <MAX_LOOP>
+			MOV R0, R1				/* If (R0 - R1) < 0, a new max has been found, so update R0 */
+  30:	e1a00001 	mov	r0, r1
+			B MAX_LOOP				/* Loop again */
+  34:	eafffff7 	b	18 <MAX_LOOP>
+
+00000038 <RESET_POINTERS>:
+
+RESET_POINTERS:
+			STR R0, [R4]			/* Max loop is over, store max value in result location */
+  38:	e5840000 	str	r0, [r4]
+			LDR R2, [R6, #4]		/* Reset pointers as initially to find min */
+  3c:	e5962004 	ldr	r2, [r6, #4]
+			ADD R3, R6, #8			/* Register R3 points to the first element in the list. */
+  40:	e2863008 	add	r3, r6, #8
+			LDR R0, [R3] 			/* Register R0 holds the first number. (This register acts like a min variable) */
+  44:	e5930000 	ldr	r0, [r3]
+
+00000048 <MIN_LOOP>:
+
+MIN_LOOP: 	SUBS R2, R2, #1			/* Decrement the loop counter */
+  48:	e2522001 	subs	r2, r2, #1
+			BEQ DONE 				/* End loop if counter has reached 0. */
+  4c:	0a000005 	beq	68 <DONE>
+			ADD R3, R3, #4 			/* Register R3 points to the next number in the list */
+  50:	e2833004 	add	r3, r3, #4
+			LDR R1, [R3] 			/* Register R1 holds the next number in the list */
+  54:	e5931000 	ldr	r1, [r3]
+			CMP R0, R1 				/* Compare R0 and R1 values (R0 - R1)  */
+  58:	e1500001 	cmp	r0, r1
+			BLE MIN_LOOP			/* If (R0 - R1) <= 0, no new min has been found, so loop again */
+  5c:	dafffff9 	ble	48 <MIN_LOOP>
+			MOV R0, R1				/* If (R0 - R1) > 0, a new min has been found, so update R0 */
+  60:	e1a00001 	mov	r0, r1
+			B MIN_LOOP				/* Loop again */
+  64:	eafffff7 	b	48 <MIN_LOOP>
+
+00000068 <DONE>:
+
+DONE:		STR R0, [R5]			/* Min Loop is over, store min value in min location */
+  68:	e5850000 	str	r0, [r5]
+			LDR R7, [R4]			/* Load max value */
+  6c:	e5947000 	ldr	r7, [r4]
+			LDR R8, [R5]			/* Load min value */
+  70:	e5958000 	ldr	r8, [r5]
+			SUBS R9, R7, R8			/* Register R9 will hold max - min value */
+  74:	e0579008 	subs	r9, r7, r8
+			LSR R9, R9, #2			/* Shifting by 2 bits is same as dividing by 4 */
+  78:	e1a09129 	lsr	r9, r9, #2
+			STR R9, [R6] 
+  7c:	e5869000 	str	r9, [r6]
+
+00000080 <END>:
+
+END: 		B END					/* Infinite loop */
+  80:	eafffffe 	b	80 <END>
+
+00000084 <MAX>:
+  84:	00000000 	.word	0x00000000
+
+00000088 <MIN>:
+  88:	00000000 	.word	0x00000000
+
+0000008c <STD_DEV>:
+  8c:	00000000 	.word	0x00000000
+
+00000090 <N>:
+  90:	00000007 	.word	0x00000007
+
+00000094 <NUMBERS>:
+  94:	00000004 	.word	0x00000004
+  98:	00000005 	.word	0x00000005
+  9c:	00000003 	.word	0x00000003
+  a0:	00000006 	.word	0x00000006
+  a4:	00000001 	.word	0x00000001
+  a8:	00000011 	.word	0x00000011
+  ac:	00000002 	.word	0x00000002
+  b0:	00000084 	.word	0x00000084
+  b4:	00000088 	.word	0x00000088
+  b8:	0000008c 	.word	0x0000008c
